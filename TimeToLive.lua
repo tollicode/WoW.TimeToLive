@@ -128,7 +128,7 @@ if (name ~= nil) then
 	local MonitorTargetFrame = CreateFrame("Frame", "MonitorTargetFrame", UIParent)
 	MonitorTargetFrame:RegisterEvent("PLAYER_TARGET_CHANGED");
 	MonitorTargetFrame:HookScript("OnEvent", function()
-		if (TTLElvUI ~= nil) then
+		if (loadable ~= "MISSING" or enabled == false) then
 			return
 		end
 		local elvUIFrame = CreateFrame("Frame", nil, ElvUF_Target)
