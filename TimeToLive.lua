@@ -1,9 +1,9 @@
 local startDrag = function(frame) if IsAltKeyDown() then frame:StartMoving() end end
 local stopDrag = function(frame) frame:StopMovingOrSizing() end
 
-local UnitHealth, UnitHealthMax = UnitHealth, UnitHealthMax
+local UnitHealth = UnitHealth
 
-TTLTargetBar, TTLFocusBar = ...
+TTLTargetBar, TTLFocusBar, TTLElvUI = ...
 
 local previousHealthTicks = queue.new()
 
@@ -33,6 +33,9 @@ end
 local function showBlank()
 	TTLFocusBar:SetText("")
 	TTLTargetBar:SetText("")
+	if (TTLElvUI ~= nil) then
+		TTLElvUI:SetText("")
+	end
 end
 
 C_Timer.NewTicker(1, function()
@@ -61,9 +64,15 @@ C_Timer.NewTicker(1, function()
 			if (math.floor(minutes) > 0) then
 				TTLFocusBar:SetFormattedText("%1dm %1ds", minutes, seconds)
 				TTLTargetBar:SetFormattedText("%1dm %1ds", minutes, seconds)
+				if (TTLElvUI ~= nil) then
+					TTLElvUI:SetFormattedText("%1dm %1ds", minutes, seconds)
+				end
 			else
 				TTLFocusBar:SetFormattedText("%1ds", seconds)
 				TTLTargetBar:SetFormattedText("%1ds", seconds)
+				if (TTLElvUI ~= nil) then
+					TTLElvUI:SetFormattedText("%1ds", seconds)
+				end
 			end
 			
 		end
@@ -80,7 +89,7 @@ local function clearHistory(event)
 	end
 end
 
-local target = CreateFrame("Frame", name, TargetFrameHealthBar)
+local target = CreateFrame("Frame", "FocusTTL", TargetFrameHealthBar)
 target:SetPoint("LEFT", TargetFrameHealthBar, "LEFT", -51, -12)
 target:SetWidth(50)
 target:SetHeight(20)
@@ -95,11 +104,11 @@ TTLTargetBar = target:CreateFontString(nil, nil, "TextStatusBarText")
 TTLTargetBar:SetAllPoints(target)
 TTLTargetBar:SetJustifyH("RIGHT")
 
-local target2 = CreateFrame("Frame", name, TargetFrameHealthBar)
+local target2 = CreateFrame("Frame", "FocusTTL", TargetFrameHealthBar)
 target2:RegisterEvent("PLAYER_TARGET_CHANGED")
 target2:SetScript("OnEvent", clearHistory)
 
-local focus = CreateFrame("Frame", "FocusPercent", FocusFrameHealthBar)
+local focus = CreateFrame("Frame", "FocusTTL", FocusFrameHealthBar)
 focus:SetPoint("LEFT", FocusFrameHealthBar, "LEFT", -51, -12)
 focus:SetWidth(50)
 focus:SetHeight(20)
@@ -113,3 +122,29 @@ focus.unit = "focus"
 TTLFocusBar = focus:CreateFontString(nil, nil, "TextStatusBarText")
 TTLFocusBar:SetAllPoints(focus)
 TTLFocusBar:SetJustifyH("RIGHT")
+
+local name, title, notes, enabled, loadable, reason, security = GetAddOnInfo("ElvUI")
+if (name ~= nil) then
+	local MonitorTargetFrame = CreateFrame("Frame", "MonitorTargetFrame", UIParent)
+	MonitorTargetFrame:RegisterEvent("PLAYER_TARGET_CHANGED");
+	MonitorTargetFrame:HookScript("OnEvent", function()
+		if (TTLElvUI ~= nil) then
+			return
+		end
+		local elvUIFrame = CreateFrame("Frame", nil, ElvUF_Target)
+		elvUIFrame:SetPoint("LEFT", ElvUF_Target, "LEFT", -50, 0)
+		elvUIFrame:SetWidth(50)
+		elvUIFrame:SetHeight(20)
+		elvUIFrame:EnableMouse(true)
+		elvUIFrame:RegisterForDrag("LeftButton")
+		elvUIFrame:SetClampedToScreen(true)
+		elvUIFrame:SetMovable(true)
+		elvUIFrame:SetScript("OnDragStart", startDrag)
+		elvUIFrame:SetScript("OnDragStop", stopDrag)
+		elvUIFrame.unit = "focus"
+		TTLElvUI = elvUIFrame:CreateFontString(nil, nil, "TextStatusBarText")
+		TTLElvUI:SetAllPoints(elvUIFrame)
+		TTLElvUI:SetJustifyH("RIGHT")
+		TTLElvUI:SetText("")
+	end)
+end
