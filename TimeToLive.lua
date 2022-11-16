@@ -39,9 +39,10 @@ local function showBlank()
 end
 
 C_Timer.NewTicker(1, function()
-	if (UnitAffectingCombat("player") == false) then
+	if (UnitAffectingCombat("player") == false and UnitIsDeadOrGhost("player") ~= true) then
 		return
 	end
+
 	-- Add current health of enemy to previous tickss
 	local hp = UnitHealth("target")
 	if (hp == 0) then
@@ -89,8 +90,8 @@ local function clearHistory(event)
 	end
 end
 
-local target = CreateFrame("Frame", "FocusTTL", TargetFrameHealthBar)
-target:SetPoint("LEFT", TargetFrameHealthBar, "LEFT", -51, -12)
+local target = CreateFrame("Frame", "FocusTTL", TargetFrameHealthBar or TargetFrame.healthbar)
+target:SetPoint("LEFT", TargetFrameHealthBar or TargetFrame.healthbar, "LEFT", -51, -12)
 target:SetWidth(50)
 target:SetHeight(20)
 target:EnableMouse(true)
@@ -104,12 +105,12 @@ TTLTargetBar = target:CreateFontString(nil, nil, "TextStatusBarText")
 TTLTargetBar:SetAllPoints(target)
 TTLTargetBar:SetJustifyH("RIGHT")
 
-local target2 = CreateFrame("Frame", "FocusTTL", TargetFrameHealthBar)
+local target2 = CreateFrame("Frame", "FocusTTL", TargetFrameHealthBar or TargetFrame.healthbar)
 target2:RegisterEvent("PLAYER_TARGET_CHANGED")
 target2:SetScript("OnEvent", clearHistory)
 
-local focus = CreateFrame("Frame", "FocusTTL", FocusFrameHealthBar)
-focus:SetPoint("LEFT", FocusFrameHealthBar, "LEFT", -51, -12)
+local focus = CreateFrame("Frame", "FocusTTL", FocusFrameHealthBar or FocusFrame.healthbar)
+focus:SetPoint("LEFT", FocusFrameHealthBar or FocusFrame.healthbar, "LEFT", -51, -12)
 focus:SetWidth(50)
 focus:SetHeight(20)
 focus:EnableMouse(true)

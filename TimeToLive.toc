@@ -1,5 +1,5 @@
-## Interface: 90200
-## Version: 1.1.0
+## Interface: 100000
+## Version: 1.2.0
 ## Title: TimeToLive
 ## Notes: Adds a health percentage to the Blizzard target, focus & boss frames.
 ## Author: Tolli
